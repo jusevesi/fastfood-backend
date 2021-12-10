@@ -1,87 +1,24 @@
-require('colors');
+const express = require('express');
+const app = express();
+const port = 8080;
+const {productosRoute} = require('./routes/productos');
 
-const {guardarDB, leerDB} = require('./helpers/guardarArchivo');
-const { inquirerMenu, 
-        pausa,
-        leerInput,
-        listadoTareasBorrar,
-        confirmar,
-        mostrarListadoChecklist
-} = require('./helpers/inquirer');
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use((_, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+    res.header('Allow', 'GET, POST, OPTIONS, PUT, DELETE');
+    next();
+});
 
-const Tareas = require('./models/tareas');
+productosRoute(app);
 
-console.clear();
+app.get('*', function (req, res) {
+    res.send('404 Page not found')
+})
 
-let completadas ='';
-
-const main = async() =>{
-
-    let opt = '';
-    const tareas = new Tareas();
-
-    const tareasDB = leerDB();
-
-    if(tareasDB){//cargar tareas
-        tareas.cargarTareasFromArrays( tareasDB );
-    }
-
-    do{
-        //Imprimir el menu
-        opt = await inquirerMenu();
-
-        switch(opt){
-            case '1':
-                //crear opcion
-                const desc = await leerInput( 'Descripcion: ');
-                tareas.crearTarea(desc);
-            break;
-            
-            case '2':
-                tareas.listadoCompleto();
-            break;
-
-            case '3':
-                tareas.listadPendienteCompleto(true);
-            break;
-
-            case '4':
-                tareas.listadPendienteCompleto(false);
-            break;
-
-            case '5': //Completado / pendiente
-                const ids =  await mostrarListadoChecklist( tareas.listadoArr );
-                tareas.toggleCompletadas(ids);
-            break;
-
-            case '6':
-                const id = await listadoTareasBorrar (tareas.listadoArr);
-                if (id !== 0 ){
-                    const ok = await confirmar('Esta seguro?');
-                    //TODO = preguntar si esta seguro
-                    if(ok) {
-                        tareas.borrarTarea( id );
-                        console.log( 'Tarea borrada' )
-                    }
-                }
-             
-            break;
-        }
-
-        guardarDB( tareas.listadoArr);
-
-
-        // const tareas = new Tareas();
-        // const tarea = new Tarea('Comprar comida');
-        // tareas._listado[tarea.id] = tarea;
-        // console.log(tareas);   
-
-
-        await pausa();
-               
-    }while(opt !== '0' );
-
-    // pausa();  
-
-}
-main();
+app.listen(port, () => {
+    console.log(`Productos Sever`)
+})
