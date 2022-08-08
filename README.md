@@ -1,6 +1,6 @@
-# PruebaEcobotBackend
+# FastFoodBackend
 
-Este repositorio corresponde al backend hecho con node js para el reto de ecobot.
+Este repositorio corresponde al backend hecho con node js FastFood.
 
 ## Pasos para ejecutar el proyecto
 
